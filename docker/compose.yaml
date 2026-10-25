@@ -1,0 +1,39 @@
+﻿services:
+  frontend:
+    build:
+      context: ../frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    networks:
+      - heran-network
+
+  backend:
+    build:
+      context: ../backend
+    environment:
+      PORT: "8080"
+    expose:
+      - "8080"
+    networks:
+      - heran-network
+
+  database:
+    image: mariadb:11
+    environment:
+      MARIADB_DATABASE: heran_music
+      MARIADB_USER: heran_app
+      MARIADB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Set DB_ROOT_PASSWORD in .env}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ../database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - heran-network
+
+networks:
+  heran-network:
+
+volumes:
+  mariadb_data:
